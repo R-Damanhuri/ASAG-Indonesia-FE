@@ -1,5 +1,3 @@
-import streamlit as st
-
 import pandas as pd
 import re
 from datasets import Dataset
@@ -126,66 +124,3 @@ def model_builder():
         ]
     )
     return model
-
-@st.cache_data
-def convert_df(df):
-    return df.to_csv().encode("utf-8")
-
-@st.fragment
-def labeling():
-    st.subheader("Nilai Sampel Data")
-    df_labeled = st.data_editor(
-    df_selected,
-    disabled=("NIM", "Soal", "Jawaban"),
-    column_config={
-        "": None,
-        "Soal_Embed": None,
-        "Jawaban_Embed": None,
-        "Cosine": None,
-        "Nilai": st.column_config.NumberColumn(
-        "Nilai",
-        min_value=0,
-        max_value=10,
-        step = 0.01,
-        format="%0.2f"
-        )
-    }
-    )
-    st.session_state.data_labeled = df_labeled
-
-@st.fragment
-def grading():
-    if st.button("Mulai Penilaian"):
-    with st.spinner("Sedang melakukan penilaian..."):
-        df_train, df_val = train_test_split(st.session_state.data_labeled, random_state = 42, train_size=0.7)
-        x_train = df_train[['Soal_Embed','Jawaban_Embed']]
-        y_train = df_train['Nilai']
-
-        x_val = df_val[['Soal_Embed','Jawaban_Embed']]
-        y_val = df_val['Nilai']
-
-        x_test = df_test[['Soal_Embed','Jawaban_Embed']]
-
-        x_train = match_matrix(x_train)
-        x_val = match_matrix(x_val)
-        x_test = match_matrix(x_test)
-
-        model = model_builder()
-        stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_SMAPE', mode='min', baseline=2, start_from_epoch=85)
-        model.fit(x_train, y_train, validation_data = [x_val,y_val], epochs=100, batch_size=32,callbacks=[stop_early])
-
-        y_predict = model.predict(x_test)
-        df_test['Nilai'] = y_predict
-
-        df_result = pd.concat([df_test[['NIM','Soal','Jawaban','Nilai']], st.session_state.data_labeled[['NIM','Soal','Jawaban','Nilai']]],axis=0)
-        df_result['Nilai'] = df_result['Nilai'].astype(float).round(2)
-        csv_result = convert_df(df_result)
-        
-        st.success("Penilaian selesai!")
-        
-        st.download_button(
-        label="Unduh CSV",
-        data= csv_result,
-        file_name="hasil_penilaian.csv",
-        mime="text/csv"
-        )
