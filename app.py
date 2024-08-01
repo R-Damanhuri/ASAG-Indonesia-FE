@@ -41,6 +41,9 @@ with tab2:
   st.write("Pastikan terdapat kolom **NIM**, **Soal**, dan **Jawaban**.")
   uploaded_file = st.file_uploader("Unggah File", label_visibility="collapsed", type=["xlsx"])
 
+  if "data_labeled" not in st.session_state:
+    st.session_state.data_labeled = 0
+
   if uploaded_file is not None:
     df = pd.read_excel(uploaded_file)
 
@@ -54,11 +57,8 @@ with tab2:
 
       df_selected, df_test = split(df_preprocced)
       df_selected['Nilai'] = [0.0] * len(df_selected)
-    st.success("Prapemrosesan data selesai!")
+      st.success("Prapemrosesan data selesai!")
     
-    if "data_labeled" not in st.session_state:
-      st.session_state.data_labeled = 0
-
     @st.fragment
     def labeling():
       st.divider()
@@ -66,20 +66,20 @@ with tab2:
       st.write("Isikan nilai beberapa sampel data untuk pelatihan model _machine learning_.")
       df_labeled = st.data_editor(
         df_selected,
-        disabled=("NIM", "Soal", "Jawaban"),
+        disabled=("Soal", "Jawaban"),
         column_config={
-          "": None,
           "Soal_Embed": None,
           "Jawaban_Embed": None,
           "Cosine": None,
           "Nilai": st.column_config.NumberColumn(
-          "Nilai",
-          min_value=0,
-          max_value=10,
-          step = 0.01,
-          format="%0.2f"
+            "Nilai",
+            min_value=0,
+            max_value=10,
+            step = 0.01,
+            format="%0.2f"
           )
-        }
+        },
+        hide_index=True,
       )
       st.session_state.data_labeled = df_labeled      
     labeling()
@@ -108,15 +108,16 @@ with tab2:
           y_predict = model.predict(x_test)
           df_test['Nilai'] = y_predict
 
-          df_result = pd.concat([df_test[['NIM','Soal','Jawaban','Nilai']], st.session_state.data_labeled[['NIM','Soal','Jawaban','Nilai']]],axis=0)
+          df_result = pd.concat([df_test[['Soal','Jawaban','Nilai']], st.session_state.data_labeled[['Soal','Jawaban','Nilai']]],axis=0)
           df_result['Nilai'] = df_result['Nilai'].astype(float).round(2)
-          csv_result = convert_df(df_result)
-          
-          st.success("Penilaian selesai!")
           
           @st.cache_data
           def convert_df(df):
             return df.to_csv().encode("utf-8")
+          
+          csv_result = convert_df(df_result)
+          
+          st.success("Penilaian selesai!")
 
           st.download_button(
             label="Unduh CSV",
