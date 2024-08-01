@@ -96,7 +96,7 @@ def match_matrix(X):
   X_matrix_stacked = np.stack(X_matrix, axis=0)
   return X_matrix_stacked
 
-@tf.keras.saving.register_keras_serializable(package="SMAPE", name="smape")
+@tf.keras.utils.register_keras_serializable(package="SMAPE", name="smape")
 def smape(y_true, y_pred):
   y_pred = tf.convert_to_tensor(y_pred)
   y_true = tf.cast(y_true, y_pred.dtype)
@@ -107,7 +107,7 @@ def smape(y_true, y_pred):
   diff = numerator/denominator
   return 100.0 * K.mean(diff, axis=-1)
 
-@tf.keras.saving.register_keras_serializable(package="SMAPE", name="SMAPE")
+@tf.keras.utils.register_keras_serializable(package="SMAPE", name="SMAPE")
 class SMAPE(tf.keras.metrics.MeanMetricWrapper):
     def __init__(self, name="SMAPE", dtype=None):
         super().__init__(smape, name, dtype=dtype)
@@ -206,7 +206,7 @@ if uploaded_file is not None:
       x_test = match_matrix(x_test)
 
       model = model_builder()
-      stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_SMAPE', baseline=2, start_from_epoch=85)
+      stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_SMAPE', mode='min', baseline=2, start_from_epoch=85)
       model.fit(x_train, y_train, validation_data = [x_val,y_val], epochs=100, batch_size=32,callbacks=[stop_early])
 
       y_predict = model.predict(x_test)
