@@ -7,9 +7,8 @@ from functions import *
 indosbert_path = "denaya/indoSBERT-large"
 
 def show():
-    st.title("Penilaian")
-    st.subheader("Unggah File Excel")
-    st.write("Pastikan terdapat kolom **NIM**, **Soal**, dan **Jawaban**.")
+    st.subheader("Unggah _File_", divider="red")
+    st.write("Pastikan _file_ memiliki format **Excel (.xlsx)** dan memiliki kolom **NIM**, **Soal**, dan **Jawaban**.")
     uploaded_file = st.file_uploader("Unggah File", label_visibility="collapsed", type=["xlsx"])
 
     if "data_labeled" not in st.session_state:
@@ -18,14 +17,14 @@ def show():
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
 
-        with st.spinner("Sedang melakukan prapemrosesan data..."):
+        with st.spinner("Prapemrosesan data sedang dilakukan ...."):
             df_preprocced = preprocess(df)
             q_vec, a_vec = sentence_embedding(indosbert_path, df_preprocced)
             df_preprocced['Soal_Embed'] = q_vec.tolist()
             df_preprocced['Jawaban_Embed'] = a_vec.tolist()
             df_selected, df_test = split(df_preprocced)
             df_selected['Nilai'] = [0.0] * len(df_selected)
-            st.success("Prapemrosesan data selesai!")
+            st.toast("Prapemrosesan data selesai!")
         
         labeling(df_selected)
         grading(df_test)
@@ -57,7 +56,7 @@ def labeling(df_selected):
 @st.fragment
 def grading(df_test):
     if st.button("Mulai Penilaian"):
-        with st.spinner("Sedang melakukan penilaian..."):
+        with st.spinner("Penilaian sedang dilakukan ...."):
             df_train, df_val = train_test_split(st.session_state.data_labeled, random_state = 42, train_size=0.7)
             x_train = df_train[['Soal_Embed','Jawaban_Embed']]
             y_train = df_train['Nilai']
@@ -83,7 +82,7 @@ def grading(df_test):
             
             csv_result = convert_df(df_result)
             
-            st.success("Penilaian selesai!")
+            st.toast("Penilaian selesai!")
 
             st.download_button(
                 label="Unduh CSV",
