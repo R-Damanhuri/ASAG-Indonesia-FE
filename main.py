@@ -21,7 +21,7 @@ with st.sidebar:
     )
     # Footer
     st.markdown("---")
-    st.write("© 2024 Indonesian ASAG. Hubungi kami di support@indonesian-asag.com")
+    st.write("© 2024 Indonesian ASAG. Made with love by [R. Damanhuri](https://github.com/r-Damanhuri/)")
 
 if selected == "Beranda":
     beranda.show()

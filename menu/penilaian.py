@@ -24,15 +24,13 @@ def show():
             df_preprocced['Jawaban_Embed'] = a_vec.tolist()
             df_selected, df_test = split(df_preprocced)
             df_selected['Nilai'] = [0.0] * len(df_selected)
-            st.toast("Prapemrosesan data selesai!")
-        
+            st.toast("Penilaian selesai!", icon="✅")
         labeling(df_selected)
         grading(df_test)
 
 @st.fragment
 def labeling(df_selected):
-    st.divider()
-    st.subheader("Nilai Sampel Data")
+    st.subheader("Nilai Sampel Data", divider="red")
     st.write("Isikan nilai beberapa sampel data untuk pelatihan model _machine learning_.")
     df_labeled = st.data_editor(
         df_selected,
@@ -56,6 +54,7 @@ def labeling(df_selected):
 @st.fragment
 def grading(df_test):
     if st.button("Mulai Penilaian"):
+        success_placeholder = st.empty()
         with st.spinner("Penilaian sedang dilakukan ...."):
             df_train, df_val = train_test_split(st.session_state.data_labeled, random_state = 42, train_size=0.7)
             x_train = df_train[['Soal_Embed','Jawaban_Embed']]
@@ -82,7 +81,7 @@ def grading(df_test):
             
             csv_result = convert_df(df_result)
             
-            st.toast("Penilaian selesai!")
+            st.toast("Penilaian selesai!", icon="✅")
 
             st.download_button(
                 label="Unduh CSV",
