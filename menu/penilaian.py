@@ -1,8 +1,10 @@
 import streamlit as st
 import pandas as pd
 import tensorflow as tf
+import numpy as np
 from sklearn.model_selection import train_test_split
 from functions import *
+import matplotlib.pyplot as plt
 
 indosbert_path = "denaya/indoSBERT-large"
 
@@ -24,7 +26,7 @@ def show():
             df_preprocced['Jawaban_Embed'] = a_vec.tolist()
             df_selected, df_test = split(df_preprocced)
             df_selected['Nilai'] = [0.0] * len(df_selected)
-            st.toast("Penilaian selesai!", icon="✅")
+            st.toast("Prapemrosesan data selesai!", icon="✅")
         labeling(df_selected)
         grading(df_test)
 
@@ -71,7 +73,7 @@ def grading(df_test):
 
             model = model_builder()
             stop_early = tf.keras.callbacks.EarlyStopping(monitor='val_SMAPE', mode='min', baseline=2, start_from_epoch=85)
-            model.fit(x_train, y_train, validation_data = [x_val,y_val], epochs=100, batch_size=32,callbacks=[stop_early])
+            history = model.fit(x_train, y_train, validation_data = [x_val,y_val], epochs=100, batch_size=32,callbacks=[stop_early])
 
             y_predict = model.predict(x_test)
             df_test['Nilai'] = y_predict
@@ -89,6 +91,38 @@ def grading(df_test):
                 file_name="hasil_penilaian.csv",
                 mime="text/csv"
             )
+
+            # Panggil fungsi baru untuk menampilkan kualitas penilaian
+            quality_controling(history, y_predict)
+
+@st.fragment
+def quality_controling(history, y_predict):
+    st.subheader("Kualitas Penilaian", divider="red")
+
+    # Tampilkan metrik menggunakan st.metric
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Loss", f"{history.history['val_loss'][-1]:.2f}")
+    col2.metric("RMSE", f"{history.history['val_root_mean_squared_error'][-1]:.2f}")
+    col3.metric("MAE", f"{history.history['val_mean_absolute_error'][-1]:.2f}")
+    col4.metric("SMAPE", f"{history.history['val_SMAPE'][-1]:.2f}")
+
+    # Buat dua kolom: satu untuk histogram, satu untuk metrik min, median, max
+    col_hist, col_stats = st.columns([0.75, 0.25])
+
+    with col_hist:
+        # Buat histogram dari y_predict dengan ukuran yang lebih kecil
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.hist(y_predict, bins=20, edgecolor='black')
+        ax.set_title('Histogram of Predicted Values')
+        ax.set_xlabel('Predicted Value')
+        ax.set_ylabel('Frequency')
+        st.pyplot(fig)
+
+    with col_stats:
+        # Tampilkan nilai min, median, max menggunakan st.metric
+        st.metric("Nilai Minimum", f"{np.min(y_predict):.2f}")
+        st.metric("Nilai Median", f"{np.median(y_predict):.2f}")
+        st.metric("Nilai Maksimum", f"{np.max(y_predict):.2f}")
 
 @st.cache_data
 def convert_df(df):
