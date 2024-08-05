@@ -106,10 +106,10 @@ def quality_controling(history, y_predict):
 
     # Tampilkan metrik menggunakan st.metric
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Loss", f"{history.history['val_loss'][-1]:.2f}")
-    col2.metric("RMSE", f"{history.history['val_root_mean_squared_error'][-1]:.2f}")
-    col3.metric("MAE", f"{history.history['val_mean_absolute_error'][-1]:.2f}")
-    col4.metric("SMAPE", f"{history.history['val_SMAPE'][-1]:.2f}")
+    col1.metric("Loss (MSE)", f"{history.history['val_loss'][-1]:.2f}", help="Rerata Kesalahan Kuadrat")
+    col2.metric("RMSE", f"{history.history['val_root_mean_squared_error'][-1]:.2f}", help="Rerata Kesalahan Sensitif Outlier")
+    col3.metric("MAE", f"{history.history['val_mean_absolute_error'][-1]:.2f}", help="Rerata Kesalahan Mutlak")
+    col4.metric("SMAPE", f"{history.history['val_SMAPE'][-1]:.2f}%", help="Persentase Rerata Kesalahan Sensitif Nilai 0")
 
     # Buat dua kolom: satu untuk histogram, satu untuk metrik min, median, max
     col_hist, col_stats = st.columns([0.75, 0.25])
@@ -118,9 +118,9 @@ def quality_controling(history, y_predict):
         # Buat histogram dari y_predict dengan ukuran yang lebih kecil
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.hist(y_predict, bins=20, edgecolor='black')
-        ax.set_title('Histogram of Predicted Values')
-        ax.set_xlabel('Predicted Value')
-        ax.set_ylabel('Frequency')
+        ax.set_title('Persebaran Nilai')
+        ax.set_xlabel('Nilai')
+        ax.set_ylabel('Frekuensi')
         st.pyplot(fig)
 
     with col_stats:
