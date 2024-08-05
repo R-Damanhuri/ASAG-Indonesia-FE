@@ -6,7 +6,7 @@ def show():
         """
         Indonesian ASAG merupakan sistem penilaian otomatis jawaban singkat berbahasa Indonesia
         menggunakan teknologi _natural language processing_ (NLP) dan _machine learning_. Sistem ini dapat membantu Anda
-        untuk menilai ujian jawaban singkat dengan topik apa pun secara otomatis.
+        untuk menilai ujian jawaban singkat dengan topik apa pun secara otomatis. Metode penilaian dapat dipelajari pada menu Metode.
         """
     )
     
@@ -14,7 +14,7 @@ def show():
     st.markdown(
         """
         1. Persiapkan _file_ Excel dengan kolom NIM, Soal, dan Jawaban.
-        2. Pilih halaman Penilaian pada _sidebar_.
+        2. Pilih menu Penilaian pada _sidebar_.
         3. Unggah _file_ Excel.
         4. Nilai sampel data yang ditampilkan.
         5. Klik tombol Mulai Penilaian untuk memulai proses penilaian otomatis.

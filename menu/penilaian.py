@@ -19,14 +19,14 @@ def show():
     if uploaded_file is not None:
         df = pd.read_excel(uploaded_file)
 
-        with st.spinner("Prapemrosesan data sedang dilakukan ...."):
+        with st.spinner("Praproses, representasi teks, dan pembagian data sedang dilakukan ...."):
             df_preprocced = preprocess(df)
             q_vec, a_vec = sentence_embedding(indosbert_path, df_preprocced)
             df_preprocced['Soal_Embed'] = q_vec.tolist()
             df_preprocced['Jawaban_Embed'] = a_vec.tolist()
             df_selected, df_test = split(df_preprocced)
             df_selected['Nilai'] = [0.0] * len(df_selected)
-            st.toast("Prapemrosesan data selesai!", icon="✅")
+            st.toast("Praproses, representasi teks, dan pembagian data selesai!", icon="✅")
         labeling(df_selected)
         grading(df_test)
 
