@@ -2,4 +2,5 @@ streamlit
 sentence-transformers
 datasets
 tensorflow
+tf-keras
 streamlit-option-menu
