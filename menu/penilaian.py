@@ -5,6 +5,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from functions import *
 import matplotlib.pyplot as plt
+import io
 
 indosbert_path = "denaya/indoSBERT-large"
 
@@ -36,11 +37,16 @@ def labeling(df_selected):
     st.write("Isikan nilai beberapa sampel data untuk pelatihan model _machine learning_.")
     df_labeled = st.data_editor(
         df_selected,
-        disabled=("Soal", "Jawaban"),
+        disabled=("NIM","Soal", "Jawaban"),
         column_config={
             "Soal_Embed": None,
             "Jawaban_Embed": None,
+            "Soal_Clean": None,
+            "Jawaban_Clean": None,
             "Cosine": None,
+            "NIM": st.column_config.TextColumn(
+              "NIM"
+            ),
             "Nilai": st.column_config.NumberColumn(
                 "Nilai",
                 min_value=0,
@@ -56,7 +62,6 @@ def labeling(df_selected):
 @st.fragment
 def grading(df_test):
     if st.button("Mulai Penilaian"):
-        success_placeholder = st.empty()
         with st.spinner("Penilaian sedang dilakukan ...."):
             df_train, df_val = train_test_split(st.session_state.data_labeled, random_state = 42, train_size=0.7)
             x_train = df_train[['Soal_Embed','Jawaban_Embed']]
@@ -78,18 +83,18 @@ def grading(df_test):
             y_predict = model.predict(x_test)
             df_test['Nilai'] = y_predict
 
-            df_result = pd.concat([df_test[['Soal','Jawaban','Nilai']], st.session_state.data_labeled[['Soal','Jawaban','Nilai']]],axis=0)
+            df_result = pd.concat([df_test[['NIM','Soal','Jawaban','Nilai']], st.session_state.data_labeled[['NIM','Soal','Jawaban','Nilai']]],axis=0)
             df_result['Nilai'] = df_result['Nilai'].astype(float).round(2)
             
-            csv_result = convert_df(df_result)
+            excel_result = convert_df(df_result)
             
             st.toast("Penilaian selesai!", icon="✅")
 
             st.download_button(
-                label="Unduh CSV",
-                data= csv_result,
-                file_name="hasil_penilaian.csv",
-                mime="text/csv"
+                label="Unduh Excel",
+                data= excel_result,
+                file_name="hasil_penilaian.xlsx",
+                mime="application/vnd.ms-excel"
             )
 
             # Panggil fungsi baru untuk menampilkan kualitas penilaian
@@ -126,4 +131,7 @@ def quality_controling(history, y_predict):
 
 @st.cache_data
 def convert_df(df):
-    return df.to_csv().encode("utf-8")
+    output = io.BytesIO()
+    with pd.ExcelWriter(output, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Sheet1')
+    return output.getvalue()

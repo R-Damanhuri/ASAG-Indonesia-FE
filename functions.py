@@ -20,15 +20,15 @@ def clean(text):
     return text
 
 def preprocess(dataframe):
-    col_filtered = dataframe.filter(['Soal','Jawaban'])
-    col_filtered['Soal'] = col_filtered['Soal'].apply(clean)
-    col_filtered['Jawaban'] = col_filtered['Jawaban'].apply(clean)
+    col_filtered = dataframe.filter(['NIM','Soal','Jawaban'])
+    col_filtered['Soal_Clean'] = col_filtered['Soal'].apply(clean)
+    col_filtered['Jawaban_Clean'] = col_filtered['Jawaban'].apply(clean)
     return col_filtered
 
 def sentence_embedding(model_path, data):
     dataset = Dataset.from_pandas(data)
-    train_examples = [InputExample(texts=[item['Jawaban'], item['Jawaban']]) for item in dataset]
-    train_examples.append(InputExample(texts=[dataset['Soal'][0], dataset['Soal'][0]]))
+    train_examples = [InputExample(texts=[item['Jawaban_Clean'], item['Jawaban_Clean']]) for item in dataset]
+    train_examples.append(InputExample(texts=[dataset['Soal_Clean'][0], dataset['Soal_Clean'][0]]))
     train_dataloader = DataLoader(train_examples, shuffle=False, batch_size=8)
 
     model = SentenceTransformer(model_path)
