@@ -4,4 +4,5 @@ datasets
 tensorflow
 tf-keras
 matplotlib
+openpyxl
 streamlit-option-menu
