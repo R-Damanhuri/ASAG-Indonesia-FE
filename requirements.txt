@@ -5,4 +5,5 @@ tensorflow
 tf-keras
 matplotlib
 openpyxl
+transformers[torch]
 streamlit-option-menu
