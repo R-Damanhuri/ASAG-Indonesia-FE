@@ -3,4 +3,5 @@ sentence-transformers
 datasets
 tensorflow
 tf-keras
+matplotlib
 streamlit-option-menu
