@@ -110,7 +110,7 @@ def model_builder():
     model.add(Bidirectional(LSTM(units=128, return_sequences=True), input_shape=(256, 256)))
     model.add(Flatten())
     model.add(Dropout(0.4))
-    model.add(Dense(1, activation='relu'))
+    model.add(Dense(1, activation=tf.keras.activations.relu(max_value=10)))
 
     smape = SMAPE()
 
